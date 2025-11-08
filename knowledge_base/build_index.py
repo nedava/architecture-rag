@@ -11,14 +11,14 @@ import hashlib
 class RAGPreprocessor:
     def __init__(self):
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=400,
-            chunk_overlap=50,
+            chunk_size=300,
+            chunk_overlap=40,
             separators=["\n\n", "\n", ". ", "! ", "? ", " ", ""],
             length_function=len,
         )
         self.qdrant_client = QdrantClient("localhost", port=6333)
 
-    def get_embeddings(self, text, model="mahonzhan/all-MiniLM-L6-v2"):
+    def get_embeddings(self, text, model="nomic-embed-text"):
         """Генерирует эмбеддинги через Ollama"""
         try:
             response = ollama.embeddings(model=model, prompt=text)
@@ -44,10 +44,13 @@ class RAGPreprocessor:
                 # Разделяем текст на чанки
                 chunks = self.text_splitter.split_text(text)
 
+                chunks_num = len(chunks)
+
                 # Добавляем метаданные к каждому чанку
                 for i, chunk in enumerate(chunks):
                     # Создаем эмбеддинг
                     embedding = self.get_embeddings(chunk)
+                    print(f'chunk {i} of {chunks_num} for file {filename} was created')
                     if not embedding:
                         continue
 
@@ -84,7 +87,7 @@ class RAGPreprocessor:
             self.qdrant_client.create_collection(
                 collection_name="documents",
                 vectors_config=VectorParams(
-                    size=384,
+                    size=768,
                     distance=Distance.COSINE
                 )
             )
