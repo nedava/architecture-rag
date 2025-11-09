@@ -5,7 +5,7 @@ if __name__ == '__main__':
     preprocessor = RAGPreprocessor()
 
     queries = [
-        'Катенька испытывает к Владимиру',
+        'Суперпароль root',
     ]
 
     for query in queries:
